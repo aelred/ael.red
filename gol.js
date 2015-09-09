@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             ctx.fillStyle = "rgb(255, 255, 255)";
         }
-        ctx.fillRect(x * (cellSize + cellBorder), 
+        ctx.fillRect(x * (cellSize + cellBorder),
                 y * (cellSize + cellBorder), cellSize, cellSize);
     }
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
             canvas.height = header.offsetHeight;
             redrawAll();
         }
-        
+
         var births = [];
         var deaths = [];
 
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             grid.push(col);
         }
-        
+
         redrawAll();
 
         // Start running
