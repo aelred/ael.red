@@ -50,11 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // make canvas fit header
         var oldWidth = canvas.width, oldHeight = canvas.height;
         canvas.style.width = '100%';
-        canvas.width = canvas.offsetWidth;
-        canvas.height = header.offsetHeight;
-        
+
         // if canvas has changed size, redraw everything
-        if (oldWidth !== canvas.width || oldHeight !== canvas.height) {
+        if (oldWidth !== canvas.offsetWidth ||
+                oldHeight !== canvas.offsetHeight) {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = header.offsetHeight;
             redrawAll();
         }
         
