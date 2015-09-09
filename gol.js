@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var header = document.getElementById('header');
 
     var ctx;
-    var width = 170;
+    var width = 80;
     var height = 40;
     var cellSize = 5;
     var cellBorder = 1;
@@ -47,14 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function step() {
-        // make canvas fit header
-        var oldWidth = canvas.width, oldHeight = canvas.height;
-        canvas.style.width = '100%';
-
         // if canvas has changed size, redraw everything
-        if (oldWidth !== canvas.offsetWidth ||
-                oldHeight !== canvas.offsetHeight) {
-            canvas.width = canvas.offsetWidth;
+        if (canvas.width !== header.offsetWidth ||
+                canvas.height !== header.offsetHeight) {
+            canvas.width = header.offsetWidth;
             canvas.height = header.offsetHeight;
             redrawAll();
         }
