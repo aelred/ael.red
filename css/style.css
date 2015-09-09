@@ -11,6 +11,7 @@
 
 #navbar > li > a {
     text-decoration: none;
+    text-transform: lowercase;
 }
 
 #navbar > li > a:hover {
