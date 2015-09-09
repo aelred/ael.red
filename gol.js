@@ -10,13 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
     var grid = [];
 
     function redraw(x, y) {
+        var xPos = x * (cellSize + cellBorder);
+        var yPos = y * (cellSize + cellBorder);
+
         if (grid[x][y]) {
-            ctx.fillStyle = "rgb(230, 230, 230)";
+            // Make smooth fade-out
+            var col = (yPos / canvas.height) * 255;
+            col = Math.round(col);
+            ctx.fillStyle = "rgb(" + col + ", " + col + ", " + col + ")";
         } else {
             ctx.fillStyle = "rgb(255, 255, 255)";
         }
-        ctx.fillRect(x * (cellSize + cellBorder),
-                y * (cellSize + cellBorder), cellSize, cellSize);
+
+        ctx.fillRect(xPos, yPos, cellSize, cellSize);
     }
 
     function redrawAll() {
