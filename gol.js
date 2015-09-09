@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function redraw(x, y) {
         if (grid[x][y]) {
-            ctx.fillStyle = "rgb(240, 240, 240)";
+            ctx.fillStyle = "rgb(230, 230, 230)";
         } else {
             ctx.fillStyle = "rgb(255, 255, 255)";
         }
