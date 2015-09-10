@@ -86,6 +86,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function relMouseCoords(event){
+        var totalOffsetX = 0;
+        var totalOffsetY = 0;
+        var canvasX = 0;
+        var canvasY = 0;
+        var currentElement = this;
+
+        do {
+            totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
+            totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
+        } while (currentElement = currentElement.offsetParent)
+
+        canvasX = event.pageX - totalOffsetX;
+        canvasY = event.pageY - totalOffsetY;
+
+        return {x:canvasX, y:canvasY};
+    }
+    HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+
+    function mouseMove(e) {
+        coords = canvas.relMouseCoords(e);
+        var cellX = Math.floor(coords.x / (cellSize + cellBorder));
+        var cellY = Math.floor(coords.y / (cellSize + cellBorder));
+
+        if (cellX >= 0 && cellX < width && cellY >= 0 && cellY < height) {
+            grid[cellX][cellY] = true;
+            redraw(cellX, cellY);
+        }
+    }
+
     if (canvas.getContext) {
         ctx = canvas.getContext('2d');
 
@@ -94,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (x = 0; x < width; x ++) {
             var col = [];
             for (y = 0; y < height; y ++) {
-                col.push(Math.random() < 0.5);
+                col.push(Math.random() < 0.15);
             }
             grid.push(col);
         }
@@ -103,5 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Start running
         setInterval(step, 100);
+        header.addEventListener('mousemove', mouseMove, false);
+        header.addEventListener('touchmove', mouseMove, false);
     }
 }, false);
