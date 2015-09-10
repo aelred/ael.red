@@ -87,35 +87,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function relMouseCoords(event){
-        var totalOffsetX = 0;
-        var totalOffsetY = 0;
-        var canvasX = 0;
-        var canvasY = 0;
-        var currentElement = this;
-        var pageX;
-        var pageY;
+        var el = this;
+        var clientX, clientY;
+        var x = 0;
+        var y = 0;
 
-        do {
-            totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
-            totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-        } while (currentElement = currentElement.offsetParent)
-
-        if (event.pageX === undefined) {
-            pageX = event.touches[0].pageX;
-        } else {
-            pageX = event.pageX;
+        while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
+            x += el.offsetLeft - el.scrollLeft;
+            y += el.offsetTop - el.scrollTop;
+            el = el.offsetParent;
         }
 
-        if (event.pageY === undefined) {
-            pageY = event.touches[0].pageY;
+        if (event.clientX === undefined) {
+            clientX = event.touches[0].clientX;
         } else {
-            pageY = event.pageY;
+            clientX = event.clientX;
         }
 
-        canvasX = pageX - totalOffsetX;
-        canvasY = pageY - totalOffsetY;
+        if (event.clientY === undefined) {
+            clientY = event.touches[0].clientY;
+        } else {
+            clientY = event.clientY;
+        }
 
-        return {x:canvasX, y:canvasY};
+        x = clientX - x;
+        y = clientY - y;
+
+        return {x: x, y: y};
     }
     HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 
