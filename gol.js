@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     var canvas = document.getElementById('animation');
-    var header = document.getElementById('header');
+    var surround = canvas.parentNode;
+    var useFade = canvas.classList.contains('animation-fade');
 
     var ctx;
 
@@ -14,18 +15,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2D grid of cells
     var grid = [];
 
+    // Current mouse coords on grid
+    var mouse;
+
+    // Location of 'special' cell
+    function special() {
+        return {x: width - 2, y: 1};
+    }
+
     // Redraw a particular cell
     function redraw(x, y) {
         var xPos = x * (cellSize + cellBorder);
         var yPos = y * (cellSize + cellBorder);
 
-        if (grid[x][y]) {
+        var specialCell = x === special().x && y === special().y;
+        var mouseOver = false;
+        if (mouse !== undefined) {
+            mouseOver = mouse.x === x && mouse.y === y;
+        }
+
+        if (grid[x][y] || (mouseOver && specialCell)) {
+            var hue = 0, sat = 0, light = 0;
+
             // Make smooth fade-out
-            var col = (yPos / canvas.height) * 255;
-            col = Math.round(col);
-            ctx.fillStyle = "rgb(" + col + ", " + col + ", " + col + ")";
+            if (useFade) light = 85 + Math.round((yPos / canvas.height) * 15);
+
+            // Special coloured square!
+            if (useFade && specialCell) {
+                light = mouseOver ? 70 : 80;
+                sat = 100;
+            }
+
+            ctx.fillStyle = "hsl(" + hue + ", " + sat + "%, " + light + "%)";
         } else {
-            ctx.fillStyle = "rgb(255, 255, 255)";
+            ctx.fillStyle = "white";
         }
 
         ctx.fillRect(xPos, yPos, cellSize, cellSize);
@@ -61,15 +84,58 @@ document.addEventListener('DOMContentLoaded', function() {
         return num;
     }
 
-    // Perform a single simulation step
-    function step() {
-        // if canvas has changed size, redraw everything
-        if (canvas.width !== header.offsetWidth ||
-                canvas.height !== header.offsetHeight) {
-            canvas.width = header.offsetWidth;
-            canvas.height = header.offsetHeight;
+    // Create a randomly alive new cell
+    function newCell() {
+        return Math.random() < 0.15;
+    }
+
+    // Resize grid to match canvas
+    function resize() {
+        var x, y;
+
+        if (canvas.width !== surround.offsetWidth ||
+                canvas.height !== surround.offsetHeight) {
+            canvas.width = surround.offsetWidth;
+            canvas.height = surround.offsetHeight;
+
+            // Adjust number of cells
+            var oldWidth = width, oldHeight = height;
+            width = Math.floor(canvas.width / (cellSize + cellBorder));
+            height = Math.floor(canvas.height / (cellSize + cellBorder));
+
+            // Add/remove rows of cells if necessary
+            if (height < oldHeight) {
+                for (x = 0; x < oldWidth; x++) {
+                    grid[x].splice(height, oldHeight - height);
+                }
+            } else if (height > oldHeight) {
+                for (x = 0; x < oldWidth; x++) {
+                    for (y = oldHeight; y < height; y++) {
+                        grid[x].push(newCell());
+                    }
+                }
+            }
+
+            // Add/remove columns of cells if necessary
+            if (width < oldWidth) {
+                grid.splice(width, oldWidth - width);
+            } else if (width > oldWidth) {
+                for (x = oldWidth; x < width; x++) {
+                    var col = [];
+                    for (y = 0; y < height; y++) {
+                        col.push(newCell());
+                    }
+                    grid.push(col);
+                }
+            }
+
             redrawAll();
         }
+    }
+
+    // Perform a single simulation step
+    function step() {
+        resize();
 
         var births = [];
         var deaths = [];
@@ -125,8 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
             clientY = event.clientY;
         }
 
-        x = clientX - x;
-        y = clientY - y;
+        x = Math.floor((clientX - x) / (cellSize + cellBorder));
+        y = Math.floor((clientY - y) / (cellSize + cellBorder));
 
         return {x: x, y: y};
     }
@@ -134,13 +200,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // create an alive cell wherever mouse moves
     function mouseMove(e) {
-        coords = canvas.relMouseCoords(e);
-        var cellX = Math.floor(coords.x / (cellSize + cellBorder));
-        var cellY = Math.floor(coords.y / (cellSize + cellBorder));
+        mouse = canvas.relMouseCoords(e);
 
-        if (cellX >= 0 && cellX < width && cellY >= 0 && cellY < height) {
-            grid[cellX][cellY] = true;
-            redraw(cellX, cellY);
+        if (mouse.x >= 0 && mouse.x < width &&
+                mouse.y >= 0 && mouse.y < height) {
+            grid[mouse.x][mouse.y] = true;
+            redraw(mouse.x, mouse.y);
+        }
+
+        // deal with special cell
+        redraw(special().x, special().y);
+        if (mouse.x === special().x && mouse.y === special().y) {
+            surround.style.cursor = 'pointer';
+        } else {
+            surround.style.cursor = 'default';
+        }
+    }
+
+    // For when clicking special cell
+    function mouseClick(e) {
+        console.log('click');
+        mouse = canvas.relMouseCoords(e);
+
+        if (mouse.x === special().x && mouse.y === special().y) {
+            window.location = "gol.html";
         }
     }
 
@@ -153,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (x = 0; x < width; x ++) {
             var col = [];
             for (y = 0; y < height; y ++) {
-                col.push(Math.random() < 0.15);
+                col.push(newCell());
             }
             grid.push(col);
         }
@@ -162,7 +245,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Start running
         setInterval(step, 100);
-        header.addEventListener('mousemove', mouseMove, false);
-        header.addEventListener('touchmove', mouseMove, false);
+        surround.addEventListener('mousemove', mouseMove, false);
+        surround.addEventListener('touchmove', mouseMove, false);
+        surround.addEventListener('click', mouseClick, false);
     }
 }, false);
