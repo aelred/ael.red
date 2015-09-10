@@ -92,14 +92,28 @@ document.addEventListener('DOMContentLoaded', function() {
         var canvasX = 0;
         var canvasY = 0;
         var currentElement = this;
+        var pageX;
+        var pageY;
 
         do {
             totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
             totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
         } while (currentElement = currentElement.offsetParent)
 
-        canvasX = event.pageX - totalOffsetX;
-        canvasY = event.pageY - totalOffsetY;
+        if (event.pageX === undefined) {
+            pageX = event.touches[0].pageX;
+        } else {
+            pageX = event.pageX;
+        }
+
+        if (event.pageY === undefined) {
+            pageY = event.touches[0].pageY;
+        } else {
+            pageY = event.pageY;
+        }
+
+        canvasX = pageX - totalOffsetX;
+        canvasY = pageY - totalOffsetY;
 
         return {x:canvasX, y:canvasY};
     }
