@@ -1,23 +1,21 @@
 #navbar {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding: 20px 0px;
     clear: left;
     list-style-type: none;
     overflow: hidden;
+    text-transform: lowercase;
 }
 
 #navbar > li {
     float: right;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 0px 20px;
 }
 
-#navbar > li > a {
+a {
     text-decoration: none;
-    text-transform: lowercase;
 }
 
-#navbar > li > a:hover {
+a:hover {
     text-decoration: underline;
 }
 
