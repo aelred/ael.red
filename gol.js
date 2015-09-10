@@ -3,12 +3,18 @@ document.addEventListener('DOMContentLoaded', function() {
     var header = document.getElementById('header');
 
     var ctx;
+
+    // width and height in cells of game of life
     var width = 80;
     var height = 40;
+    // width and height of cells in pixels
     var cellSize = 5;
     var cellBorder = 1;
+
+    // 2D grid of cells
     var grid = [];
 
+    // Redraw a particular cell
     function redraw(x, y) {
         var xPos = x * (cellSize + cellBorder);
         var yPos = y * (cellSize + cellBorder);
@@ -25,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.fillRect(xPos, yPos, cellSize, cellSize);
     }
 
+    // Redraw all cells
     function redrawAll() {
         for (x = 0; x < width; x ++) {
             for (y = 0; y < height; y ++) {
@@ -33,10 +40,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Proper modulus function (unlike javascript's '%')
     function mod(a, b) {
         return ((a%b)+b)%b;
     }
 
+    // Get number of alive neighbours of a cell
     function numNeighbours(x, y) {
         var num = 0;
         var xs = mod(x-1, width), ys = mod(y-1, height);
@@ -52,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return num;
     }
 
+    // Perform a single simulation step
     function step() {
         // if canvas has changed size, redraw everything
         if (canvas.width !== header.offsetWidth ||
@@ -68,13 +78,17 @@ document.addEventListener('DOMContentLoaded', function() {
             for (var y = 0; y < height; y ++) {
                 var num = numNeighbours(x, y);
                 if (grid[x][y] && (num < 2 || num > 3)) {
+                    // over/undercrowded -> death
                     deaths.push({x: x, y: y});
                 } else if (!grid[x][y] && num === 3) {
+                    // just right -> birth
                     births.push({x: x, y: y});
                 }
             }
         }
 
+        // Change state only AFTER checking number of neighbours at
+        // each cell.
         births.forEach(function(birth) {
             grid[birth.x][birth.y] = true;
             redraw(birth.x, birth.y);
@@ -86,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Get mouse coordinates on the canvas
     function relMouseCoords(event){
         var el = this;
         var clientX, clientY;
@@ -117,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 
+    // create an alive cell wherever mouse moves
     function mouseMove(e) {
         coords = canvas.relMouseCoords(e);
         var cellX = Math.floor(coords.x / (cellSize + cellBorder));
@@ -128,6 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Only run game of life if canvas is supported on browser
     if (canvas.getContext) {
         ctx = canvas.getContext('2d');
 
