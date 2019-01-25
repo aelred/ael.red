@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var canvas = document.getElementById('animation');
     var surround = canvas.parentNode;
     var useFade = canvas.classList.contains('animation-fade');
+    var requestForWork = canvas.classList.contains('request-for-work');
 
     var ctx;
 
@@ -17,6 +18,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Current mouse coords on grid
     var mouse;
+
+    var _ = false;
+    var O = true;
+
+    var spaceship = [
+        [_, _, _, _, _, _, _],
+        [_, O, _, _, O, _, _],
+        [_, _, _, _, _, O, _],
+        [_, O, _, _, _, O, _],
+        [_, _, O, O, O, O, _],
+        [_, _, _, _, _, _, _]
+    ]
+
+    var message = [
+        [O, O, O, _, O, _, _, _, O, O, O, _, O, O, O, _, O, O, O, _, O, O, O],
+        [O, _, O, _, O, _, _, _, O, _, _, _, O, _, O, _, O, _, _, _, O, _, _],
+        [O, O, O, _, O, _, _, _, O, O, _, _, O, O, O, _, O, O, O, _, O, O, _],
+        [O, _, _, _, O, _, _, _, O, _, _, _, O, _, O, _, _, _, O, _, O, _, _],
+        [O, _, _, _, O, O, O, _, O, O, O, _, O, _, O, _, O, O, O, _, O, O, O],
+        [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, O, _, O, _, O, O, O, _, O, O, _, _, O, O, O, _, _, _, _],
+        [_, _, _, _, O, _, O, _, _, O, _, _, O, _, O, _, O, _, _, _, _, _, _],
+        [_, _, _, _, O, O, O, _, _, O, _, _, O, O, _, _, O, O, _, _, _, _, _],
+        [_, _, _, _, O, _, O, _, _, O, _, _, O, _, O, _, O, _, _, _, _, _, _],
+        [_, _, _, _, O, _, O, _, O, O, O, _, O, _, O, _, O, O, O, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+        [_, _, O, O, O, _, O, O, O, _, O, _, _, _, O, O, O, _, O, _, O, _, _],
+        [_, _, O, _, _, _, O, _, _, _, O, _, _, _, _, O, _, _, O, _, O, _, _],
+        [_, _, O, O, _, _, O, O, _, _, O, _, _, _, _, O, _, _, _, O, _, _, _],
+        [_, _, O, _, _, _, O, _, _, _, O, _, _, _, _, O, _, _, O, _, O, _, _],
+        [_, _, O, _, _, _, O, O, O, _, O, O, O, _, O, O, O, _, O, _, O, _, _]
+    ]
 
     // Location of 'special' cell
     function special() {
@@ -38,7 +71,14 @@ document.addEventListener('DOMContentLoaded', function() {
             var hue = 0, sat = 0, light = 0;
 
             // Make smooth fade-out
-            if (useFade) light = 85 + Math.round((yPos / canvas.height) * 15);
+            var baseLight;
+            if (useFade) {
+                baseLight = 85;
+            } else {
+                baseLight = 0;
+            }
+
+            light = baseLight + Math.round((yPos / canvas.height) * (100 - baseLight));
 
             // Special coloured square!
             if (useFade && specialCell) {
@@ -84,9 +124,33 @@ document.addEventListener('DOMContentLoaded', function() {
         return num;
     }
 
+    function readMessage(x, y) {
+        var block_width = spaceship[0].length;
+        var block_height = spaceship.length;
+
+        var new_x = Math.floor(x / block_width);
+        var new_y = Math.floor(y / block_height);
+
+        if (new_y < 0 || new_y >= message.length) {
+            return false;
+        }
+
+        row = message[new_y];
+
+        if (new_x < 0 || new_x >= row.length) {
+            return false;
+        }
+
+        return row[new_x] && spaceship[y % block_height][x % block_width];
+    }
+
     // Create a randomly alive new cell
-    function newCell() {
-        return Math.random() < 0.15;
+    function newCell(x, y) {
+        if (requestForWork) {
+            return readMessage(x, y)
+        } else {
+            return Math.random() < 0.15;
+        }
     }
 
     // Resize grid to match canvas
@@ -111,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (height > oldHeight) {
                 for (x = 0; x < oldWidth; x++) {
                     for (y = oldHeight; y < height; y++) {
-                        grid[x].push(newCell());
+                        grid[x].push(newCell(x, y));
                     }
                 }
             }
@@ -123,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 for (x = oldWidth; x < width; x++) {
                     var col = [];
                     for (y = 0; y < height; y++) {
-                        col.push(newCell());
+                        col.push(newCell(x, y));
                     }
                     grid.push(col);
                 }
@@ -236,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (x = 0; x < width; x ++) {
             var col = [];
             for (y = 0; y < height; y ++) {
-                col.push(newCell());
+                col.push(newCell(x, y));
             }
             grid.push(col);
         }
