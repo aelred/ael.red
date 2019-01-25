@@ -27,3 +27,7 @@ a:hover {
 .page {
     max-width: 460px;
 }
+
+p {
+    margin-bottom: 20px;
+}
