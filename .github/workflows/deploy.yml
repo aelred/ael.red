@@ -8,11 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - uses: actions/checkout@v2
       - name: Deploy
         uses: appleboy/scp-action@v0.1.1
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          source: '*'
+          source: .
           target: /var/www/${{ secrets.HOST }}
