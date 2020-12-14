@@ -1,12 +1,6 @@
 on:
   push:
     branches: [ master ]
-  # supports manually triggering the deploy
-  workflow_dispatch:
-    inputs:
-      host:
-        required: true
-        default: ${{ secrets.HOST }}
     
 jobs:
         
@@ -18,7 +12,7 @@ jobs:
       - name: Deploy
         uses: appleboy/scp-action@v0.1.1
         with:
-          host: ${{ github.events.input.host }}
+          host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           source: .
